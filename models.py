@@ -6,6 +6,26 @@ from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt() 
 db = SQLAlchemy()
 
+
+class Post(db.Model):
+    """A users Blog post"""
+
+    __tablename__ = 'posts'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    title = db.Column(db.String(30), nullable=False)
+    
+    content = db.Column(db.Text, nullable=False)
+
+    author_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+
+    author = db.relationship('User')
+
 class User(db.Model):
     """Creates a User for our db"""
 
@@ -14,10 +34,21 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     username = db.Column(db.String(30), nullable=False, unique=True)
+    
+    pfp_url = db.Column(db.Text, default="/Static/images/default.png")
 
     email = db.Column(db.Text, nullable=False, unique=True)
 
     password = db.Column(db.String, nullable=False)
+
+    bio = db.Column(db.Text)
+
+    # Using a join to get all of the users posts as a list 
+    users_posts =  db.relationship(
+        "User",
+        secondary="posts",
+        primaryjoin=(Post.id == id),
+    )
 
     @classmethod 
     def register(cls, username, email, password):
@@ -31,18 +62,17 @@ class User(db.Model):
 
         return(new_user)
 
-@classmethod
-def first_authentication(cls, username, password):
-    """Method to perform first level of authentication"""
+    @classmethod
+    def first_authentication(cls, username, password):
+        """Method to perform first level of authentication"""
 
-    user = cls.query.filter_by(username=username).first()
+        user = cls.query.filter_by(username=username).first()
 
-    if user:
-        authenticated = bcrypt.check_password_has(user.password, password)
-        if authenticated:
-            return user
-    return False
-
+        if user:
+            authenticated = bcrypt.check_password_has(user.password, password)
+            if authenticated:
+                return user
+        return False
 
 
 def connect_db(app):
