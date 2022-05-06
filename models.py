@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
+from flask_login import UserMixin
 
 
 
@@ -28,7 +29,7 @@ class Post(db.Model):
 
     author = db.relationship('User')
 
-class User(db.Model):
+class User(UserMixin,db.Model):
     """Creates a User for our db"""
 
     __tablename__ = 'users'
