@@ -1,5 +1,5 @@
 import os 
-from flask import Flask, render_template, request, flash, session
+from flask import Flask, redirect, render_template, request, flash, session
 from models import User, connect_db
 from forms import RegistrationForm, LoginForm, BlogPostForm, ChangePassForm, UpdateProfileForm, OneTimePassForm
 from sqlalchemy.sql import text
@@ -44,6 +44,12 @@ def get_registered():
 
 @app.route('/login')
 def login_user():
-    """View for loging in a new user"""
+    """View for logging in a new user"""
 
     return render_template('login.hmtl')
+
+@app.route('/logout')
+def logout_user():
+    """View for logging out a user"""
+    logout_user()
+    return redirect('/')
