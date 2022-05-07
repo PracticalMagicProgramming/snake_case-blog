@@ -121,3 +121,22 @@ def logout_user():
     return redirect('/')
 
 #~~~~~~ Profile Management Routes ~~~~~~#
+
+# TODO: 
+# Get all users and display them-USER DIRECTORY
+# Get the logged in user and display their profile
+# Get User Details
+# UPDATE ALL INFO AND ADD PFP/BIO
+# UPDATE PASSWORD
+# View all your blogs
+
+#~~~~~~ Blog Management Routes ~~~~~~#
+
+# TODO: 
+# Get all of a blogs and display them - blog feed
+# Get the a users blog and display them-users have an option to edit their own blog posts
+# Get and Display a particular blog post
+# UPDATE a blog post 
+# UPDATE PASSWORD
+# View all your blogs
+
