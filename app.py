@@ -1,11 +1,14 @@
 from crypt import methods
-import os 
+import os
+import bcrypt 
 from flask import Flask, redirect, render_template, request, flash, session
 from psycopg2 import IntegrityError
 from models import Post, User, db, connect_db
 from forms import BlogUpdateForm, RegistrationForm, LoginForm, BlogPostForm, ChangePassForm, UpdateProfileForm, OneTimePassForm
 from sqlalchemy.sql import text
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
+from flask_bcrypt import check_password_hash
+
 
 app = Flask(__name__)
 
@@ -126,14 +129,15 @@ def logout_user():
 
 #~~~~~~ Profile Management Routes ~~~~~~#
 
-# TODO: 
+# FIXME: We'll need to initialize the page num as zero
+
 # Get all users and display them-USER DIRECTORY
-@app.route('/users')
+@app.route('/users/<int:page_num>')
 @login_required
-def get_user_dir():
+def get_user_dir(page_num):
     """View for seeing all of snake_case's users"""
-  
-    return render_template('user-dir.html')
+    all_users = User.query.paginate(per_page=5, page=page_num, error_out=True)
+    return render_template('user-dir.html', all_users=all_users)
 
 # Get the user and display their profile
 @app.route('/users/profile/<int:user_id>')
@@ -141,8 +145,8 @@ def get_user_dir():
 def get_user_profile(user_id):
     """View for seeing users profile"""
     # if the profile is the users profile display an edit button
-
-    return render_template('profile.html')
+    user = User.query.get_or_404(user_id)
+    return render_template('profile.html', user=user)
 
 
 # UPDATE and ADD to Profile
@@ -156,15 +160,24 @@ def edit_user_profile(user_id):
 
     if form.validate_on_submit():
         try:
-            # TODO: Grab form data to update and save to database
+            #grab the data
+            username = username.form.data
+            pfp_url = pfp_url.form.data
+            email =   email.form.data
+            bio = bio.form.data
+            
+            #perform the update
+            user_update = User.update().where(User.id==user_id).values(username=username,pfp_url=pfp_url,email=email,bio=bio)
+            db.session.add(user_update)
+            db.session.commit()
             return redirect(f'/users/profile/{user_id}')
         except:
                 flash('update not successful try again')
-                return render_template('profile-update.html')
+                return render_template('profile-update.html', form=form)
 
     else:
     # TODO: we will need an update password anchor tag in our template
-        return render_template('update-profile.html')
+        return render_template('update-profile.html', form=form)
     
 
 # UPDATE PASSWORD
@@ -180,16 +193,27 @@ def change_user_password(user_id):
 
     if form.validate_on_submit():
         try:
-            # TODO: Grab form data compare passwords and update accordingly
-            return redirect(f'/users/profile/{user_id}')
+            # Grab of orig pass data and compare passwords- update accordingly
+            old_password= old_password.form.data
+            new_password = new_password.form.data
+            authenticated = bcrypt.check_password_hash(user_pass, old_password)
+
+            if authenticated:
+                # if Authenticated we grab the new password and update! e
+                user_new_pass = User.update().where(User.id==user_id).values(password=new_password)
+                db.session.add(user_new_pass)
+                db.session.commit()
+                return redirect(f'/users/profile/{user_id}')
         except:
                 flash('update not successful try again')
-                return render_template('pass-update.html')
+                return render_template('pass-update.html', form=form)
 
     else:
     # TODO: we will need an update password anchor tag in our template
-        return render_template('pass-update.html')
+        return render_template('pass-update.html', form=form)
 
+
+#FIXME: Fix the pagination for the blogs- how do we paginate only the users blogs
 
 # View all of a users blogs-users have an option to edit their own blog posts
 # Get the user and display their profile
@@ -197,30 +221,32 @@ def change_user_password(user_id):
 @login_required
 def get_user_blogs(user_id):
     """View for seeing users profile"""
-    # if the profile is the users profile display an edit button
-    # TODO: Grab users blogs and pass them to the template
+    # if the profile is the users profile display an edit button - TODO: In Template
+    user = User.get_or_404(user_id)
+    user_blogs = user.user_posts
     # Template should include toggling for whether the user can edit the blogs 
-
-    return render_template('user-blogs.html')
+    return render_template('user-blogs.html', user_blogs=user_blogs)
 
 #~~~~~~ Blog Management Routes ~~~~~~#
 
-# TODO: 
+# FIXME: Initialize the pagination on the Template
 # Get all of a blogs and display them - blog feed
-@app.route('/blogs')
+@app.route('/blogs/<int:page_num>')
 @login_required
-def get_blog_feed():
+def get_blog_feed(page_num):
     """View for seeing all of snake_case's blogs-displayed as a feed"""
-  
-    return render_template('feed.html')
+    all_blogs = Post.query.paginate(per_page=5, page=page_num, error_out=True)
+
+    return render_template('feed.html', all_blogs=all_blogs)
 
 # Get and Display a particular blog post-users have an option to edit their own blog posts
 @app.route('/blogs/<int:post_id>')
 @login_required
 def get_blog_detail(post_id):
     """View for seeing a particular blog post"""
-  # if the blog is the users they should be able to edit the blog
-    return render_template('blog.html')
+    blog = Post.get_or_404(post_id)
+    # if the blog is the users they should be able to edit the blog- TODO: in Template
+    return render_template('blog.html', blog=blog)
 
 # Create a new blog post
 @app.route('/blogs/create', methods=['GET', 'POST'])
@@ -235,14 +261,19 @@ def create_new_post():
     # handling the form submission
     if form.validate_on_submit():
         try:
-            # TODO: Grab form data and create new blog post
+            title = title.form.data
+            content = content.form.data
+
+            blog_post = Post(title=title, content=content, author_id=user_id)
+            db.session.add(blog_post)
+            db.session.commit()
             return redirect(f'/users/{user_id}/blogs')
         except:
                 flash('update not successful try again')
-                return render_template('create.html')
+                return render_template('create.html', user=user, form=form)
 
     else:
-        return render_template('create.html')
+        return render_template('create.html', user=user, form=form)
 
 # UPDATE a blog post
 @app.route('/blogs/<int:post_id>/update', methods=['GET', 'PATCH'])
@@ -259,13 +290,20 @@ def update_blog_post(post_id):
     # handling the form submission
     if form.validate_on_submit():
         try:
-            # TODO: Grab form data and create new blog post
+            #grab the data
+            title = title.form.data
+            content = content.form.data
+        
+            #perform the update
+            blog_post_update = Post.update().where(Post.id==post_id).values(title=title, content=content)
+            db.session.add(blog_post_update)
+            db.session.commit()
             return redirect(f'/blogs/{post_id}')
         except:
                 flash('update not successful try again')
-                return render_template('create.html')
+                return render_template('create.html', user=user, form=form)
 
     else:
-        return render_template('create.html')
+        return render_template('create.html', user=user, form=form)
 
 

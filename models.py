@@ -72,7 +72,7 @@ class User(UserMixin,db.Model):
         user = cls.query.filter_by(username=username).first()
 
         if user:
-            authenticated = bcrypt.check_password_has(user.password, password)
+            authenticated = bcrypt.check_password_hash(user.password, password)
             if authenticated:
                 return user
         return False
