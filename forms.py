@@ -8,7 +8,7 @@ from wtforms.validators import Length, InputRequired
 class RegistrationForm(FlaskForm):
     """Reg form for new users"""
     username = StringField('Username', validators=[InputRequired()])
-    email = EmailField('Username', validators=[InputRequired()])
+    email = EmailField('Email', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired(), Length(min=10)])
     
 class LoginForm(FlaskForm):
@@ -25,12 +25,8 @@ class UpdateProfileForm(FlaskForm):
     username = StringField('Username', validators=[])
     pfp_url = StringField('Profile Pic URL', validators=[])
     email = EmailField('Username', validators=[])
+    password = PasswordField('New Password', validators=[InputRequired(), Length(min=10)])
     bio = TextAreaField('Enter your Bio', validators=[])
-
-class ChangePassForm(FlaskForm):
-    """Form to change a users password"""
-    old_password = PasswordField('Old Password', validators=[InputRequired(), Length(min=10)])
-    new_password = PasswordField('New Password', validators=[InputRequired(), Length(min=10)])
 
 class BlogPostForm(FlaskForm):
     """Posting a blog to your Profile"""

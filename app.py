@@ -2,15 +2,14 @@ import os
 import bcrypt 
 from flask import Flask, redirect, render_template, flash
 from psycopg2 import IntegrityError
-from models import Post, User, db, connect_db
-from forms import BlogUpdateForm, RegistrationForm, LoginForm, BlogPostForm, ChangePassForm, UpdateProfileForm, OneTimePassForm
+from models import Post, User, db, connect_db, bcrypt
+from forms import BlogUpdateForm, RegistrationForm, LoginForm, BlogPostForm, UpdateProfileForm, OneTimePassForm
 from sqlalchemy.sql import text
+from flask_sqlalchemy import Pagination
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 from flask_bcrypt import Bcrypt
-
+import pdb
 app = Flask(__name__)
-
-bcrypt = Bcrypt() 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -66,7 +65,7 @@ def get_registered():
 
 
 @app.route('/login', methods =['GET', 'POST'])
-def login_user():
+def user_login():
     """View for logging in a new user"""
     # remember that the method for loggin in is called "first_authentication"
     form = LoginForm()
@@ -153,20 +152,24 @@ def get_user_profile(user_id):
 def edit_user_profile(user_id):
     """View for updating logged in users profile"""
     # get user profile and pass it to the form to be edited
-    user = User.get_or_404(user_id)
+    user = User.query.filter_by(id=user_id).first()
     form = UpdateProfileForm(obj=user)
 
     if form.validate_on_submit():
         try:
             #grab the data
-            username = form.username.data
-            pfp_url = form.pfp_url.data
-            email = form.email.data
-            bio = form.bio.data
+    
+            user.username = form.username.data
+            user.pfp_url = form.pfp_url.data
+            user.email = form.email.data
+            #grab password from form, hash and update it
+            new_password = form.password.data
+            new_pass_hash = bcrypt.generate_password_hash(new_password).decode('UTF-8')
+            user.password = new_pass_hash
+
+            user.bio = form.bio.data
             
             #perform the update
-            user_update = User.update().where(User.id==user_id).values(username=username,pfp_url=pfp_url,email=email,bio=bio)
-            db.session.add(user_update)
             db.session.commit()
             return redirect(f'/users/profile/{user_id}')
         except:
@@ -174,42 +177,8 @@ def edit_user_profile(user_id):
                 return render_template('profile-update.html', form=form, user=user)
 
     else:
-        return render_template('update-profile.html', form=form, user=user)
+        return render_template('profile-update.html', form=form, user=user)
     
-
-# UPDATE PASSWORD
-@app.route('/users/profile/<int:user_id>/edit/password', methods=['GET', 'POST'])
-@login_required
-def change_user_password(user_id):
-    """View for updating logged in users password"""
-
-    # grab the user and their password, give the form the current pass to be edited
-    user = User.get_or_404(user_id)
-    user_pass = user.password
-    form = ChangePassForm()
-
-    if form.validate_on_submit():
-        try:
-            # Grab of orig pass data and compare passwords- update accordingly
-            old_password= form.old_password.data
-            new_password = form.new_password.data
-            authenticated = bcrypt.check_password_hash(user_pass, old_password)
-
-            if authenticated:
-                #hash the new password
-                new_pass_hash = bcrypt.generate_password_hash(new_password).decode('UTF-8')
-                # if Authenticated we grab the new password and update! e
-                user_new_pass = User.update().where(User.id==user_id).values(password=new_pass_hash)
-                db.session.add(user_new_pass)
-                db.session.commit()
-                return redirect(f'/users/profile/{user_id}')
-        except:
-                flash('update not successful try again')
-                return render_template('pass-update.html', form=form, user=user)
-
-    else:
-        return render_template('pass-update.html', form=form, user=user)
-
 
 # View all of a users blogs-users have an option to edit their own blog posts
 # Set two route configs- one has the inital default for the page num
@@ -218,7 +187,7 @@ def change_user_password(user_id):
 @login_required
 def get_user_blogs(user_id, page_num):
     """View for seeing users profile"""
-    user = User.get_or_404(user_id)
+    user = User.query.filter_by(id=user_id).first()
     posts = Post.query.paginate(per_page=5, page=page_num, error_out=True)
 
     return render_template('user-blogs.html', user=user, posts=posts)
@@ -243,7 +212,7 @@ def get_blog_detail(post_id):
     """View for seeing a particular blog post"""
     blog = Post.get_or_404(post_id)
    
-    return render_template('blog.html', blog=blog)
+    return render_template('view-blog.html', blog=blog)
 
 # Create a new blog post
 @app.route('/blogs/create', methods=['GET', 'POST'])
@@ -252,7 +221,7 @@ def create_new_post():
     """View for creating a new blog post"""
     form = BlogPostForm()
     # get the current user and exract their id for use
-    user = User.query.filter_by(current_user.id)
+    user = User.query.filter_by(id=current_user.id).first()
     user_id =user.id
 
     # handling the form submission
@@ -264,7 +233,7 @@ def create_new_post():
             blog_post = Post(title=title, content=content, author_id=user_id)
             db.session.add(blog_post)
             db.session.commit()
-            return redirect(f'/users/{user_id}/blogs')
+            return redirect(f'/users/{user_id}/blogs/1')
         except:
                 flash('update not successful try again')
                 return render_template('create.html', form=form, user=user)

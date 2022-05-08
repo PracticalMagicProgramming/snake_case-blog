@@ -12,7 +12,7 @@
     <div class="container-fluid pe-4 mb-4">
 
         <div>
-        {% for user in  all_users %}
+        {% for user in  all_users.items %}
                <b> {{ user.username }} </b>
                <a href="/users/profile/{{ user.id }}" class="btn btn-dark"> profile</a>
         {% endfor %}
