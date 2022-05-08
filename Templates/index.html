@@ -3,9 +3,19 @@
 {% block title %} Homepage {% endblock %}
 
 {% block content %} 
-<h1>Welcome to Snake_Case</h1>
-<h2>A blog for Python People</h2>
-<p></p>
-<a href=""></a>
-<a href=""></a>
+<h1 class="class=d-inline mb-4">
+    Welcome to Snake_Case
+    <small class="text-muted">A blog site for Python people</small>
+</h1>
+
+<br>
+
+    <p> Hi friends. Got some hot Python tips? Or maybe just some hot takes? Take it to the blogs and register for a snake_case account today!</p>
+
+<br>
+
+<div class="list-group">
+    <a href="/login" class="list-group-item list-group-item-success"> Existing member? Login</a>
+    <a href="/register" class="list-group-item list-group-item-success">Join us! Register today!</a>
+</div>
 {% endblock %}

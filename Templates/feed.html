@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %} User Blogs {% endblock %}
+
+{% block content %}
+
+
+    <h2 class="class=d-inline mb-4">
+        Your Blogs :3
+    </h2>
+    
+    <div class="container-fluid pe-4 mb-4">
+
+        <div>
+        {% for blog in  all_blogs %}
+               <b> {{ blog.title }} </b>
+               <p> {{ blog.username }}</p>
+               <a href="/blogs/{{ blog.id }}" class="btn btn-dark"> Read more</a>
+        {% endfor %}
+        </div>       
+        
+    <!-- this is used to iterate through the pages and display a link for each at the bottom -->
+        {% for page in all_blogs.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
+            {% if page %}
+                    <a href="blogs/{{ page }}"> {{ page }}</a>
+            {% else %}
+                    <span>…</span>
+            {% endif %}
+        {% endfor %}
+    </div>    
+
+{% endblock %}

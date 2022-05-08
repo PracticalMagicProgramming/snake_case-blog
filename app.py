@@ -1,17 +1,16 @@
-from crypt import methods
 import os
 import bcrypt 
-from flask import Flask, redirect, render_template, request, flash, session
+from flask import Flask, redirect, render_template, flash
 from psycopg2 import IntegrityError
 from models import Post, User, db, connect_db
 from forms import BlogUpdateForm, RegistrationForm, LoginForm, BlogPostForm, ChangePassForm, UpdateProfileForm, OneTimePassForm
 from sqlalchemy.sql import text
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
-from flask_bcrypt import check_password_hash
-
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 
+bcrypt = Bcrypt() 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -40,7 +39,7 @@ def get_home():
 
     return render_template('index.html')
 
-# TODO: Write Basic Functionality for logging in and registering 
+
 @app.route('/register', methods=['GET', 'POST'])
 def get_registered():
     """View for registering a new user"""
@@ -58,13 +57,12 @@ def get_registered():
             return redirect('/')
     # except if it doesn't 
         except IntegrityError:
-            flash('Failed to register try again', 'danger')
+            flash('Failed to register. Please try again', 'danger')
             return render_template('register.html', form=form)
 
     else:
         return render_template('register.html', form=form)
 
-    
 
 
 @app.route('/login', methods =['GET', 'POST'])
@@ -78,7 +76,7 @@ def login_user():
         # TODO: ONCE WE HAVE THE BASIC GOING WE'LL REDIRECT TO THE GET TOTP ROUTE
         if user:
             try:
-                User.first_authentication(form.username.data, form.password.data)
+                User.first_authentication(user.username, form.password.data)
                 login_user(user, remember=True)
                 flash(f'Hello, {user.username}!', 'success')
                 return redirect('/')
@@ -129,9 +127,9 @@ def logout_user():
 
 #~~~~~~ Profile Management Routes ~~~~~~#
 
-# FIXME: We'll need to initialize the page num as zero
 
 # Get all users and display them-USER DIRECTORY
+@app.route('/users/<int:page_num>', defaults={'page_num' : 1})
 @app.route('/users/<int:page_num>')
 @login_required
 def get_user_dir(page_num):
@@ -150,7 +148,7 @@ def get_user_profile(user_id):
 
 
 # UPDATE and ADD to Profile
-@app.route('/users/profile/<int:user_id>/edit', methods=['GET', 'PATCH'])
+@app.route('/users/profile/<int:user_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_user_profile(user_id):
     """View for updating logged in users profile"""
@@ -161,10 +159,10 @@ def edit_user_profile(user_id):
     if form.validate_on_submit():
         try:
             #grab the data
-            username = username.form.data
-            pfp_url = pfp_url.form.data
-            email =   email.form.data
-            bio = bio.form.data
+            username = form.username.data
+            pfp_url = form.pfp_url.data
+            email = form.email.data
+            bio = form.bio.data
             
             #perform the update
             user_update = User.update().where(User.id==user_id).values(username=username,pfp_url=pfp_url,email=email,bio=bio)
@@ -173,15 +171,14 @@ def edit_user_profile(user_id):
             return redirect(f'/users/profile/{user_id}')
         except:
                 flash('update not successful try again')
-                return render_template('profile-update.html', form=form)
+                return render_template('profile-update.html', form=form, user=user)
 
     else:
-    # TODO: we will need an update password anchor tag in our template
-        return render_template('update-profile.html', form=form)
+        return render_template('update-profile.html', form=form, user=user)
     
 
 # UPDATE PASSWORD
-@app.route('/users/profile/<int:user_id>/edit/password', methods=['GET', 'PATCH'])
+@app.route('/users/profile/<int:user_id>/edit/password', methods=['GET', 'POST'])
 @login_required
 def change_user_password(user_id):
     """View for updating logged in users password"""
@@ -189,48 +186,48 @@ def change_user_password(user_id):
     # grab the user and their password, give the form the current pass to be edited
     user = User.get_or_404(user_id)
     user_pass = user.password
-    form = ChangePassForm(obj=user_pass)
+    form = ChangePassForm()
 
     if form.validate_on_submit():
         try:
             # Grab of orig pass data and compare passwords- update accordingly
-            old_password= old_password.form.data
-            new_password = new_password.form.data
+            old_password= form.old_password.data
+            new_password = form.new_password.data
             authenticated = bcrypt.check_password_hash(user_pass, old_password)
 
             if authenticated:
+                #hash the new password
+                new_pass_hash = bcrypt.generate_password_hash(new_password).decode('UTF-8')
                 # if Authenticated we grab the new password and update! e
-                user_new_pass = User.update().where(User.id==user_id).values(password=new_password)
+                user_new_pass = User.update().where(User.id==user_id).values(password=new_pass_hash)
                 db.session.add(user_new_pass)
                 db.session.commit()
                 return redirect(f'/users/profile/{user_id}')
         except:
                 flash('update not successful try again')
-                return render_template('pass-update.html', form=form)
+                return render_template('pass-update.html', form=form, user=user)
 
     else:
-    # TODO: we will need an update password anchor tag in our template
-        return render_template('pass-update.html', form=form)
+        return render_template('pass-update.html', form=form, user=user)
 
-
-#FIXME: Fix the pagination for the blogs- how do we paginate only the users blogs
 
 # View all of a users blogs-users have an option to edit their own blog posts
-# Get the user and display their profile
-@app.route('/users/<int:user_id>/blogs')
+# Set two route configs- one has the inital default for the page num
+@app.route('/users/<int:user_id>/blogs/<int:page_num>', defaults={'page_num' : 1})
+@app.route('/users/<int:user_id>/blogs/<int:page_num>')
 @login_required
-def get_user_blogs(user_id):
+def get_user_blogs(user_id, page_num):
     """View for seeing users profile"""
-    # if the profile is the users profile display an edit button - TODO: In Template
     user = User.get_or_404(user_id)
-    user_blogs = user.user_posts
-    # Template should include toggling for whether the user can edit the blogs 
-    return render_template('user-blogs.html', user_blogs=user_blogs)
+    posts = Post.query.paginate(per_page=5, page=page_num, error_out=True)
+
+    return render_template('user-blogs.html', user=user, posts=posts)
 
 #~~~~~~ Blog Management Routes ~~~~~~#
 
-# FIXME: Initialize the pagination on the Template
-# Get all of a blogs and display them - blog feed
+# Get all of a blogs and display them - blog feed 
+# We have the two routes for the pagination config
+@app.route('/blogs/<int:page_num>', defaults={'page_num' : 1})
 @app.route('/blogs/<int:page_num>')
 @login_required
 def get_blog_feed(page_num):
@@ -245,7 +242,7 @@ def get_blog_feed(page_num):
 def get_blog_detail(post_id):
     """View for seeing a particular blog post"""
     blog = Post.get_or_404(post_id)
-    # if the blog is the users they should be able to edit the blog- TODO: in Template
+   
     return render_template('blog.html', blog=blog)
 
 # Create a new blog post
@@ -261,8 +258,8 @@ def create_new_post():
     # handling the form submission
     if form.validate_on_submit():
         try:
-            title = title.form.data
-            content = content.form.data
+            title = form.title.data
+            content = form.content.data
 
             blog_post = Post(title=title, content=content, author_id=user_id)
             db.session.add(blog_post)
@@ -270,13 +267,13 @@ def create_new_post():
             return redirect(f'/users/{user_id}/blogs')
         except:
                 flash('update not successful try again')
-                return render_template('create.html', user=user, form=form)
+                return render_template('create.html', form=form, user=user)
 
     else:
-        return render_template('create.html', user=user, form=form)
+        return render_template('create.html', form=form, user=user)
 
 # UPDATE a blog post
-@app.route('/blogs/<int:post_id>/update', methods=['GET', 'PATCH'])
+@app.route('/blogs/<int:post_id>/update', methods=['GET', 'POST'])
 @login_required
 def update_blog_post(post_id):
     """View for creating a new blog post"""
@@ -285,14 +282,13 @@ def update_blog_post(post_id):
     form = BlogUpdateForm(obj=post)
     # get the current user and exract their id for use
     user = User.query.filter_by(current_user.id)
-    user_id =user.id
    
     # handling the form submission
     if form.validate_on_submit():
         try:
             #grab the data
-            title = title.form.data
-            content = content.form.data
+            title = form.title.data
+            content = form.title.data
         
             #perform the update
             blog_post_update = Post.update().where(Post.id==post_id).values(title=title, content=content)
@@ -301,9 +297,9 @@ def update_blog_post(post_id):
             return redirect(f'/blogs/{post_id}')
         except:
                 flash('update not successful try again')
-                return render_template('create.html', user=user, form=form)
+                return render_template('create.html', form=form, user=user, post=post)
 
     else:
-        return render_template('create.html', user=user, form=form)
+        return render_template('create.html', form=form, user=user, post=post)
 
 

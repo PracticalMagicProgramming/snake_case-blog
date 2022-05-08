@@ -29,8 +29,8 @@ class UpdateProfileForm(FlaskForm):
 
 class ChangePassForm(FlaskForm):
     """Form to change a users password"""
-    old_password = PasswordField('Password', validators=[InputRequired(), Length(min=10)])
-    new_password = PasswordField('Password', validators=[InputRequired(), Length(min=10)])
+    old_password = PasswordField('Old Password', validators=[InputRequired(), Length(min=10)])
+    new_password = PasswordField('New Password', validators=[InputRequired(), Length(min=10)])
 
 class BlogPostForm(FlaskForm):
     """Posting a blog to your Profile"""

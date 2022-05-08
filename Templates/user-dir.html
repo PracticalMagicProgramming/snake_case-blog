@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %} User Directory {% endblock %}
+
+{% block content %}
+
+
+    <h2 class="class=d-inline mb-4">
+       User Directory
+    </h2>
+    
+    <div class="container-fluid pe-4 mb-4">
+
+        <div>
+        {% for user in  all_users %}
+               <b> {{ user.username }} </b>
+               <a href="/users/profile/{{ user.id }}" class="btn btn-dark"> profile</a>
+        {% endfor %}
+        </div>       
+        
+    <!-- this is used to iterate through the pages and display a link for each at the bottom -->
+        {% for page in all_users.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
+            {% if page %}
+                    <a href="/users/{{ page }}"> {{ page }}</a>
+            {% else %}
+                    <span>…</span>
+            {% endif %}
+        {% endfor %}
+    </div>    
+
+{% endblock %}

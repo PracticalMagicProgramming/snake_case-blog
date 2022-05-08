@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %} Register {% endblock %}
+
+{% block content %} 
+<h2 class="class=d-inline mb-4">
+   Hey New Friend!
+    <small class="text-muted">Lets get you registered!</small>
+</h2>
+
+<div class="container-fluid pe-4 mb-4">
+    <div class="row justify-content-md-center">
+        <div class="col-md-7 col-lg-5">
+        <form method="POST" action='/register'>
+            {{ form.hidden_tag() }} 
+  
+            {% for field in form if field.widget.input_type != 'hidden' %}
+
+                {{ field.label }}
+                {{ field(placeholder=field.label.text, class="form-control") }}
+  
+                {% for error in field.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            {% endfor %}
+
+            <button type="submit" class=" mt-4 btn btn-success">Register me captain!</button>
+        </form>
+        </div> 
+    </div>
+</div>    
+{% endblock %}

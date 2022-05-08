@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %} Profile {% endblock %}
+
+{% block content %} 
+    <h1 class="class=d-inline mb-4">
+        {{ user.name }}
+    </h1>
+
+    <div class="pfp">
+        <img src="{{user.pfp_url}}">
+    </div>
+
+    <div>
+        <p>{{ user.bio }}</p>
+    </div>
+
+    <!-- if this is the current users profile page allow them to edit their profile -->
+    {% if current_user.id == user.id %}
+        <div class="list-group">
+            <a href="/users/profile/{{user.id}}/edit" class="list-group-item list-group-item-success">Edit Info</a>
+        </div>
+    {% endif %}  
+
+{% endblock %}

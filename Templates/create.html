@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %} Create Blog Post {% endblock %}
+
+{% block content %} 
+<h2 class="class=d-inline mb-4">
+    Create a Blog
+    <small class="text-muted"> Share Your Ideas!</small>
+</h2>
+
+<div class="container-fluid pe-4 mb-4">
+    <div class="row justify-content-md-center">
+        <div class="col-md-7 col-lg-5">
+            <form method="POST" action='/blogs/create'>
+                {{ form.hidden_tag() }} 
+    
+                {% for field in form if field.widget.input_type != 'hidden' %}
+
+                    {{ field.label }}
+                    {{ field(placeholder=field.label.text, class="form-control") }}
+    
+                    {% for error in field.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                {% endfor %}
+
+                <button type="submit" class=" mt-4 btn btn-success">Share me!</button>
+            </form>
+        </div> 
+    </div>
+</div>    

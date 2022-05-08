@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %} View Blog {% endblock %}
+
+{% block content %} 
+    <h1 class="class=d-inline mb-4">
+        {{ blog.title }}}
+    </h1>
+    <div>
+        <p>{{ blog.content }}</p>
+    </div>
+
+    <!-- if this is the current users profile page allow them to edit their profile -->
+    {% if current_user.id == blog.author_id %}
+        <div class="list-group">
+            <a href="/blogs/{{ blog.id }}/update" class="list-group-item list-group-item-success">Edit Blog</a>
+        </div>
+    {% endif %}  
+
+{% endblock %}

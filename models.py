@@ -50,7 +50,7 @@ class User(UserMixin,db.Model):
     users_posts =  db.relationship(
         "User",
         secondary="posts",
-        primaryjoin=(Post.id == id),
+        primaryjoin=(Post.author_id == id),
     )
 
     @classmethod 

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %} Profile Update {% endblock %}
+
+{% block content %} 
+<h2 class="class=d-inline mb-4"> Update your info </h2>
+
+<div class="container-fluid pe-4 mb-4">
+    <div class="row justify-content-md-center">
+        <div class="col-md-7 col-lg-5">
+        <form method="POST" action='/users/profile/{{ user.id }}/edit'>
+            {{ form.hidden_tag() }} 
+
+            {% for field in form if field.widget.input_type != 'hidden' %}
+
+                {{ field.label }}
+                {{ field(placeholder=field.label.text, class="form-control") }}
+
+                {% for error in field.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            {% endfor %}
+
+            <button type="submit" class=" mt-4 btn btn-success">edit</button>
+        </form>
+        </div> 
+    </div>
+</div>    
+    <a href="'/users/profile/{{ user.id }}/edit/password'">Update Password Here</a>
+{% endblock %}
