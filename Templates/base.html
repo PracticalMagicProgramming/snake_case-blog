@@ -5,8 +5,45 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %} {% endblock %}</title>
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.css">
+    <script src="https://unpkg.com/jquery"></script>
+    <script src="https://unpkg.com/popper"></script>    
+    <script src="https://unpkg.com/bootstrap"></script>
 </head>
 <body>
+    <nav>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/">Home</a>
+            </li>
+            {% if current_user.is_authenticated == False %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/register">Register</a>
+                </li>
+            {% endif %}
+            {% if current_user.is_authenticated %}
+                <!-- if logged in -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/users/1">User Directory</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users/profile/{{ current_user.id }}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/blogs/1">Feed</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/blogs/create">Create</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
     {% block content %}
 
 
