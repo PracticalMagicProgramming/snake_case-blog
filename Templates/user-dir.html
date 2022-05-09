@@ -11,21 +11,22 @@
     
     <div class="container-fluid pe-4 mb-4">
 
-        <div>
+        <div class="btn-group-vertical">
         {% for user in  all_users.items %}
                <b> {{ user.username }} </b>
                <a href="/users/profile/{{ user.id }}" class="btn btn-dark"> profile</a>
         {% endfor %}
         </div>       
-        
-    <!-- this is used to iterate through the pages and display a link for each at the bottom -->
-        {% for page in all_users.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
-            {% if page %}
-                    <a href="/users/{{ page }}"> {{ page }}</a>
-            {% else %}
-                    <span>…</span>
-            {% endif %}
-        {% endfor %}
-    </div>    
 
+        <div class="btn-group">
+        <!-- this is used to iterate through the pages and display a link for each at the bottom -->
+            {% for page in all_users.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
+                {% if page %}
+                        <a href="/users/{{ page }}" class="btn btn-dark text-success"> {{ page }}</a>
+                {% else %}
+                        <span>…</span>
+                {% endif %}
+            {% endfor %}
+        </div>    
+    </div>
 {% endblock %}

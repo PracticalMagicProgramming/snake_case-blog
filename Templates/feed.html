@@ -20,13 +20,14 @@
         </div>       
         
     <!-- this is used to iterate through the pages and display a link for each at the bottom -->
-        {% for page in all_blogs.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
-            {% if page %}
-                    <a href="blogs/{{ page }}"> {{ page }}</a>
-            {% else %}
-                    <span>…</span>
-            {% endif %}
-        {% endfor %}
-    </div>    
-
+        <div class="btn-group">
+            {% for page in all_blogs.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
+                {% if page %}
+                        <a href="blogs/{{ page }}" class="btn btn-dark text-success"> {{ page }}</a>
+                {% else %}
+                        <span>…</span>
+                {% endif %}
+            {% endfor %}
+        </div>    
+    </div>
 {% endblock %}
