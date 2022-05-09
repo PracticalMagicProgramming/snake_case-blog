@@ -10,20 +10,26 @@
     </h2>
     
     <div class="container-fluid pe-4 mb-4">
+        <div class="card-group-vertical m-2 p-2 ">
+            {% for blog in  all_blogs.items %}
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ blog.title }}</h5>
+                        <p>{{ blog.username }}</p>
+                    </div>
+                    <div class="card-body">
+                        <a href="/blogs/view/{{ blog.id }}" class="btn btn-dark card-link">Read More</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>      
 
-        <div class="btn-group-vertical">
-        {% for blog in  all_blogs.items %}
-               <b> {{ blog.title }} </b>
-               <p> {{ blog.username }}</p>
-               <a href="/blogs/view/{{ blog.id }}" class="btn btn-dark"> Read more</a>
-        {% endfor %}
-        </div>       
         
     <!-- this is used to iterate through the pages and display a link for each at the bottom -->
         <div class="btn-group">
             {% for page in all_blogs.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
                 {% if page %}
-                        <a href="blogs/{{ page }}" class="btn btn-dark text-success"> {{ page }}</a>
+                        <a href="blogs/{{ page }}" class="btn btn-dark"> {{ page }}</a>
                 {% else %}
                         <span>…</span>
                 {% endif %}

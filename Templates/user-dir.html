@@ -11,18 +11,32 @@
     
     <div class="container-fluid pe-4 mb-4">
 
-        <div class="btn-group-vertical">
+        <!-- <div class="btn-group-vertical">
         {% for user in  all_users.items %}
                <b> {{ user.username }} </b>
                <a href="/users/profile/{{ user.id }}" class="btn btn-dark"> profile</a>
         {% endfor %}
-        </div>       
+        </div> -->
+
+        <div class="card-group-vertical bg m-2 p-2 ">
+            {% for user in  all_users.items %}
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                      <h5 class="card-title">{{ user.username }}</h5>
+                    </div>
+                    <div class="card-body">
+                      <a href="/users/profile/{{ user.id }}" class="btn btn-dark card-link"> profile</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>      
+    
 
         <div class="btn-group">
         <!-- this is used to iterate through the pages and display a link for each at the bottom -->
             {% for page in all_users.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
                 {% if page %}
-                        <a href="/users/{{ page }}" class="btn btn-dark text-success"> {{ page }}</a>
+                        <a href="/users/{{ page }}" class="btn btn-dark"> {{ page }}</a>
                 {% else %}
                         <span>…</span>
                 {% endif %}

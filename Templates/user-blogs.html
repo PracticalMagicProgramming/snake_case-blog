@@ -14,28 +14,34 @@
             <thead>
                 <tr>
                   <th scope="col">Title</th> 
+                  <th scope="col">Link</th>
                 </tr>
+                
               </thead>
               <tbody></tbody>
                 {% for posts in posts.items %}
                     <tr scope="row" class="align-middle">   
                         {% if posts.author_id == user.id %}
-                            <td class="align-middle"> {{ posts.title }} </td>
-                            <td class="align-middle"> <a href="/blogs/view/{{ posts.id }}" class="btn btn-dark">View Details</a></td>
+                            <div display="d-inline">
+                                <td class="align-middle">{{ posts.title }} </td>
+                                <td class="align-middle"> <a href="/blogs/view/{{ posts.id }}" class="btn btn-dark">View Details</a></td>
+                            </div>
                         {% endif %}
                     </tr>
-                {% endfor %}
-                
+                {% endfor %} 
               </tbody>
         </table>
+
     <!-- this is used to iterate through the pages and display a link for each at the bottom -->
-        {% for page in posts.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
-            {% if page and posts.author_id == user.id %}
-                    <a href="/users/{{ user.id }}/blogs/{{ page }}"> {{ page }}</a>
-            {% else %}
-                    <span>…</span>
-            {% endif %}
-        {% endfor %}
+        <div class="btn-group">
+            {% for page in posts.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
+                {% if page and posts.author_id == user.id %}
+                        <a href="/users/{{ user.id }}/blogs/{{ page }}" class="btn btn-dark text-success"> {{ page }}</a>
+                {% else %}
+                        <span>…</span>
+                {% endif %}
+            {% endfor %}
+        </div>
     </div>    
 
 {% endblock %}
