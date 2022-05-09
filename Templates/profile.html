@@ -7,10 +7,6 @@
         {{ user.username }}
     </h1>
 
-    <div class="pfp">
-        <img src="{{user.pfp_url}}">
-    </div>
-
     <div>
         <p>{{ user.bio }}</p>
     </div>
@@ -19,6 +15,7 @@
     {% if current_user.id == user.id %}
         <div class="list-group">
             <a href="/users/profile/{{user.id}}/edit" class="list-group-item list-group-item-success">Edit Info</a>
+            <a href="/users/{{user.id}}/blogs/1" class="list-group-item list-group-item-success">View My Blogs!</a>
         </div>
     {% endif %}  
 

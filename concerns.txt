@@ -13,6 +13,8 @@ may not we'll have to check
 
 5/9/22:
 - Change URL for each paginated anchor tag so that it's route/firstpage
-- Add buttons for application flow
+- Read through code and make conventions consistent across all view functions
+
+- Add nav bar and buttons for application flow
 - Prettify the front end a bit and add styling
 - Basic tests

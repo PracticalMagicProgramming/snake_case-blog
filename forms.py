@@ -23,7 +23,6 @@ class OneTimePassForm(FlaskForm):
 class UpdateProfileForm(FlaskForm):
     """Allows a user to add pfp and bio as well as update information"""
     username = StringField('Username', validators=[])
-    pfp_url = StringField('Profile Pic URL', validators=[])
     email = EmailField('Username', validators=[])
     password = PasswordField('New Password', validators=[InputRequired(), Length(min=10)])
     bio = TextAreaField('Enter your Bio', validators=[])

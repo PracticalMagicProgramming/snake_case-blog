@@ -71,7 +71,9 @@ def user_login():
     form = LoginForm()
 
     if form.validate_on_submit():
+        # We use filter_by bc until the user is logged on, no access to PK
         user = User.query.filter_by(username=form.username.data).first()
+
         # TODO: ONCE WE HAVE THE BASIC GOING WE'LL REDIRECT TO THE GET TOTP ROUTE
         if user:
             try:
@@ -127,7 +129,6 @@ def logout_user():
 #~~~~~~ Profile Management Routes ~~~~~~#
 
 
-# Get all users and display them-USER DIRECTORY
 @app.route('/users/<int:page_num>', defaults={'page_num' : 1})
 @app.route('/users/<int:page_num>')
 @login_required
@@ -136,30 +137,28 @@ def get_user_dir(page_num):
     all_users = User.query.paginate(per_page=5, page=page_num, error_out=True)
     return render_template('user-dir.html', all_users=all_users)
 
-# Get the user and display their profile
 @app.route('/users/profile/<int:user_id>')
 @login_required
 def get_user_profile(user_id):
     """View for seeing users profile"""
-    # TODO: MAKE QUERIES CONSISTENT
+  
     user = User.query.get_or_404(user_id)
     return render_template('profile.html', user=user)
 
 
-# UPDATE and ADD to Profile
+
 @app.route('/users/profile/<int:user_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_user_profile(user_id):
     """View for updating logged in users profile"""
     # get user profile and pass it to the form to be edited
-    user = User.query.filter_by(id=user_id).first()
+    user = User.query.get_or_404(user_id)
     form = UpdateProfileForm(obj=user)
 
     if form.validate_on_submit():
         try:
-            #grab the data
+
             user.username = form.username.data
-            user.pfp_url = form.pfp_url.data
             user.email = form.email.data
             #grab password from form, hash and update it
             new_password = form.password.data
@@ -178,7 +177,6 @@ def edit_user_profile(user_id):
         return render_template('profile-update.html', form=form, user=user)
     
 
-# View all of a users blogs-users have an option to edit their own blog posts
 # Set two route configs- one has the inital default for the page num
 @app.route('/users/<int:user_id>/blogs/<int:page_num>', defaults={'page_num' : 1})
 @app.route('/users/<int:user_id>/blogs/<int:page_num>')
@@ -192,7 +190,7 @@ def get_user_blogs(user_id, page_num):
 
 #~~~~~~ Blog Management Routes ~~~~~~#
 
-# Get all of a blogs and display them - blog feed 
+
 # We have the two routes for the pagination config
 @app.route('/blogs/<int:page_num>', defaults={'page_num' : 1})
 @app.route('/blogs/<int:page_num>')
@@ -203,23 +201,23 @@ def get_blog_feed(page_num):
 
     return render_template('feed.html', all_blogs=all_blogs)
 
-# Get and Display a particular blog post-users have an option to edit their own blog posts
+
 @app.route('/blogs/view/<int:post_id>')
 @login_required
 def get_blog_detail(post_id):
     """View for seeing a particular blog post"""
-    post = Post.query.get(post_id)
+    post = Post.query.get_or_404(post_id)
    
     return render_template('view-blog.html', post=post)
 
-# Create a new blog post
+
 @app.route('/blogs/create', methods=['GET', 'POST'])
 @login_required
 def create_new_post():
     """View for creating a new blog post"""
     form = BlogPostForm()
     # get the current user and exract their id for use
-    user = User.query.filter_by(id=current_user.id).first()
+    user = User.query.get_or_404(current_user.id)
     user_id =user.id
 
     # handling the form submission

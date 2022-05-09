@@ -18,8 +18,6 @@ class User(UserMixin, db.Model):
 
     username = db.Column(db.String(30), nullable=False, unique=True)
     
-    pfp_url = db.Column(db.Text, default="/Static/images/default.png")
-
     email = db.Column(db.Text, nullable=False, unique=True)
 
     password = db.Column(db.String, nullable=False)
