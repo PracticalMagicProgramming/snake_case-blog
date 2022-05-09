@@ -42,9 +42,9 @@ def get_home():
 @app.route('/register', methods=['GET', 'POST'])
 def get_registered():
     """View for registering a new user"""
-    # Instantiate the Reg Form
+  
     form = RegistrationForm()
-    # IF VALIDATION 
+
     if form.validate_on_submit():
         try:
             # Sign-up both instantiates the User Model and Hashes the passy 
@@ -54,7 +54,7 @@ def get_registered():
             login_user(user)
 
             return redirect('/')
-    # except if it doesn't 
+    
         except IntegrityError:
             flash('Failed to register. Please try again', 'danger')
             return render_template('register.html', form=form)
@@ -141,7 +141,7 @@ def get_user_dir(page_num):
 @login_required
 def get_user_profile(user_id):
     """View for seeing users profile"""
-    # if the profile is the users profile display an edit button
+    # TODO: MAKE QUERIES CONSISTENT
     user = User.query.get_or_404(user_id)
     return render_template('profile.html', user=user)
 
@@ -158,7 +158,6 @@ def edit_user_profile(user_id):
     if form.validate_on_submit():
         try:
             #grab the data
-    
             user.username = form.username.data
             user.pfp_url = form.pfp_url.data
             user.email = form.email.data
@@ -166,7 +165,6 @@ def edit_user_profile(user_id):
             new_password = form.password.data
             new_pass_hash = bcrypt.generate_password_hash(new_password).decode('UTF-8')
             user.password = new_pass_hash
-
             user.bio = form.bio.data
             
             #perform the update

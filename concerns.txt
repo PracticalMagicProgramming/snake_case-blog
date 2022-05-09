@@ -1,6 +1,6 @@
 
 
-5/5/22:
+5/8/22:
 -For User logs view we need to make sure we are  actually comparing the post id and user_blogs id (these should be the same) 
 so that the users blogs are paginated correctly
 
@@ -10,3 +10,9 @@ the render
 - HTMl for feed we are attempting to access posts.username, this should work bc of the relationship set up but it 
 may not we'll have to check 
 
+
+5/9/22:
+- Change URL for each paginated anchor tag so that it's route/firstpage
+- Add buttons for application flow
+- Prettify the front end a bit and add styling
+- Basic tests
