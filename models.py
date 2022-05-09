@@ -4,32 +4,12 @@ from flask_migrate import Migrate
 from flask_login import UserMixin
 
 
-
 bcrypt = Bcrypt() 
 db = SQLAlchemy()
 migrate = Migrate()
 
 
-class Post(db.Model):
-    """A users Blog post"""
-
-    __tablename__ = 'posts'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
-    title = db.Column(db.String(30), nullable=False)
-    
-    content = db.Column(db.Text, nullable=False)
-
-    author_id = db.Column(
-        db.Integer,
-        db.ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False,
-    )
-
-    author = db.relationship('User')
-
-class User(UserMixin,db.Model):
+class User(UserMixin, db.Model):
     """Creates a User for our db"""
 
     __tablename__ = 'users'
@@ -48,10 +28,11 @@ class User(UserMixin,db.Model):
 
     # Using a join to get all of the users posts as a list 
     users_posts =  db.relationship(
-        "User",
-        secondary="posts",
-        primaryjoin=(Post.author_id == id),
+        "Post",
+        secondary="user_posts",
+        backref='users',
     )
+
 
     @classmethod 
     def register(cls, username, email, password):
@@ -77,6 +58,27 @@ class User(UserMixin,db.Model):
                 return user
         return False
 
+class Post(db.Model):
+    """A users Blog post"""
+
+    __tablename__ = 'posts'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    title = db.Column(db.String(30), nullable=False)
+    
+    content = db.Column(db.Text, nullable=False)
+
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
+
+class User_Post(db.Model):
+    """M2M Table for users and their posts"""
+
+    __tablename__ = "user_posts"
+
+    post_id = db.Column(db.Integer, db.ForeignKey("posts.id"), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
 
 def connect_db(app):
     """Connects our db to our application"""

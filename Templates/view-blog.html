@@ -4,16 +4,16 @@
 
 {% block content %} 
     <h1 class="class=d-inline mb-4">
-        {{ blog.title }}}
+        {{ post.title }}
     </h1>
     <div>
-        <p>{{ blog.content }}</p>
+        <p>{{ post.content }}</p>
     </div>
 
     <!-- if this is the current users profile page allow them to edit their profile -->
-    {% if current_user.id == blog.author_id %}
+    {% if current_user.id == post.author_id %}
         <div class="list-group">
-            <a href="/blogs/{{ blog.id }}/update" class="list-group-item list-group-item-success">Edit Blog</a>
+            <a href="/blogs/{{ post.id }}/update" class="list-group-item list-group-item-success">Edit Blog</a>
         </div>
     {% endif %}  
 

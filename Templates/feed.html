@@ -15,7 +15,7 @@
         {% for blog in  all_blogs.items %}
                <b> {{ blog.title }} </b>
                <p> {{ blog.username }}</p>
-               <a href="/blogs/{{ blog.id }}" class="btn btn-dark"> Read more</a>
+               <a href="/blogs/view/{{ blog.id }}" class="btn btn-dark"> Read more</a>
         {% endfor %}
         </div>       
         

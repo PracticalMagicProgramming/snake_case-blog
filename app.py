@@ -206,13 +206,13 @@ def get_blog_feed(page_num):
     return render_template('feed.html', all_blogs=all_blogs)
 
 # Get and Display a particular blog post-users have an option to edit their own blog posts
-@app.route('/blogs/<int:post_id>')
+@app.route('/blogs/view/<int:post_id>')
 @login_required
 def get_blog_detail(post_id):
     """View for seeing a particular blog post"""
-    blog = Post.get_or_404(post_id)
+    post = Post.query.get(post_id)
    
-    return render_template('view-blog.html', blog=blog)
+    return render_template('view-blog.html', post=post)
 
 # Create a new blog post
 @app.route('/blogs/create', methods=['GET', 'POST'])
@@ -247,28 +247,26 @@ def create_new_post():
 def update_blog_post(post_id):
     """View for creating a new blog post"""
      # get post using id and pass the existing info to the form to display
-    post = Post.query.get_or_404(post_id)
+    post = Post.query.get(post_id)
     form = BlogUpdateForm(obj=post)
     # get the current user and exract their id for use
-    user = User.query.filter_by(current_user.id)
+    user = User.query.get(current_user.id)
    
     # handling the form submission
     if form.validate_on_submit():
         try:
             #grab the data
-            title = form.title.data
-            content = form.title.data
+            post.title = form.title.data
+            post.content = form.title.data
         
             #perform the update
-            blog_post_update = Post.update().where(Post.id==post_id).values(title=title, content=content)
-            db.session.add(blog_post_update)
             db.session.commit()
             return redirect(f'/blogs/{post_id}')
         except:
                 flash('update not successful try again')
-                return render_template('create.html', form=form, user=user, post=post)
+                return render_template('update-blog.html', form=form, user=user, post=post)
 
     else:
-        return render_template('create.html', form=form, user=user, post=post)
+        return render_template('update-blog.html', form=form, user=user, post=post)
 
 
