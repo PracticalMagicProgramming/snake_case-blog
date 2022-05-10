@@ -69,6 +69,8 @@ class Post(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
+    # author_name = db.relationship(SELECT all USers where author_id == User.id, return username)
+
 
 class User_Post(db.Model):
     """M2M Table for users and their posts"""
