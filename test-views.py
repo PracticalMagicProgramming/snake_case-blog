@@ -54,7 +54,7 @@ class LoginViewTestCase(TestCase):
             html = resp.get_data(as_text=True)
 
             self.assertEqual(resp.status_code, 200)
-            self.assertIn('<h2>Login To Start Sharing!</h2>', html)
+            self.assertIn('<button type="submit" class="btn btn-dark">Log Me In</button>', html)
 
     def test_login_redirect(self):
         # redirect for route
@@ -64,7 +64,7 @@ class LoginViewTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
 
-class LoginViewTestCase(TestCase):
+class RegisterViewTestCase(TestCase):
     """Testing our Login Route"""
     
     def setUp(self):
@@ -92,7 +92,6 @@ class LoginViewTestCase(TestCase):
             with app.test_client() as client:
                 d = {'username': 'Mirii', 'email': 'mirii@gmail.com', 'password' : 'password4'}
                 resp = client.post('/register', data=d, follow_redirects=True)
-                html = resp.get_data(as_text=True)
 
             self.assertEqual(resp.status_code, 200)
         
