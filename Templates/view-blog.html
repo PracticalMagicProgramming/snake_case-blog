@@ -3,17 +3,15 @@
 {% block title %} View Blog {% endblock %}
 
 {% block content %} 
-    <h1 class="class=d-inline mb-4">
-        {{ post.title }}
-    </h1>
-    <div>
-        <p>{{ post.content }}</p>
+    <div class="card d-inline mb-4" style="width: 18rem;">
+          <h5 class="card-title">{{ post.title }}</h5>
+          <p class="card-text">{{ post.content }}</p>
     </div>
 
     <!-- if this is the current users profile page allow them to edit their profile -->
     {% if current_user.id == post.author_id %}
-        <div class="list-group">
-            <a href="/blogs/{{ post.id }}/update" class="list-group-item list-group-item-success">Edit Blog</a>
+        <div class="btn-group">
+            <a href="/blogs/{{ post.id }}/update" class="btn btn-dark">Edit Blog</a>
         </div>
     {% endif %}  
 

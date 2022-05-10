@@ -6,13 +6,13 @@
 
 
     <h2 class="class=d-inline mb-4">
-        Your Blogs :3
+      <strong>Look</strong> At all these blogs!
     </h2>
     
     <div class="container-fluid pe-4 mb-4">
-        <div class="card-group-vertical m-2 p-2 ">
+        <div class="card-group-vertical mb-2 p-2 ">
             {% for blog in  all_blogs.items %}
-                <div class="card" style="width: 18rem;">
+                <div class="card mb-4" style="width: 25rem;">
                     <div class="card-body">
                         <h5 class="card-title">{{ blog.title }}</h5>
                         <p>{{ blog.username }}</p>

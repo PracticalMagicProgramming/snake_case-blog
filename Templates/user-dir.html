@@ -20,11 +20,12 @@
 
         <div class="card-group-vertical bg m-2 p-2 ">
             {% for user in  all_users.items %}
-                <div class="card" style="width: 18rem;">
+                <div class="card mb-2" style="width: 18rem;">
                     <div class="card-body">
                       <h5 class="card-title">{{ user.username }}</h5>
                     </div>
                     <div class="card-body">
+                        <p>Check out their Blog!</p>
                       <a href="/users/profile/{{ user.id }}" class="btn btn-dark card-link"> profile</a>
                     </div>
                 </div>
