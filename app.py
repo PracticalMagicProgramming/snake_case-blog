@@ -198,7 +198,7 @@ def get_user_blogs(user_id, page_num):
 def get_blog_feed(page_num):
     """View for seeing all of snake_case's blogs-displayed as a feed"""
     all_blogs = Post.query.paginate(per_page=5, page=page_num, error_out=True)
-    # FIXME: to get authors name to display on the card.
+    # FIXME: to get authors name to display on the card. How do we create a paginated join?
     return render_template('feed.html', all_blogs=all_blogs)
 
 

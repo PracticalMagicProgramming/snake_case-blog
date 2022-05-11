@@ -7,6 +7,7 @@
 
 from unittest import TestCase
 from models import db, User, Post
+from flask_login import login_user
 from app import app
 
 app.config["SQLALCHEMY_DATABASE_URI"]  = "postgresql:///snake-case-test"
@@ -65,7 +66,7 @@ class LoginViewTestCase(TestCase):
             self.assertEqual(resp.status_code, 200)
 
 class RegisterViewTestCase(TestCase):
-    """Testing our Login Route"""
+    """Testing our Register Route"""
     
     def setUp(self):
         """Drop and recreate the db"""
@@ -95,7 +96,6 @@ class RegisterViewTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
         
-
 
 
          
